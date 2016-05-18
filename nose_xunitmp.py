@@ -2,6 +2,7 @@
 import multiprocessing
 import codecs
 from datetime import datetime
+from time import time
 
 from nose.plugins.base import Plugin
 from nose.plugins.xunit import Xunit, format_exception, id_split, nice_classname, exc_message, escape_cdata
@@ -95,11 +96,14 @@ class XunitMP(Xunit):
 
         tb = format_exception(err, self.encoding)
         id = test.id()
-        started = self._timer()
+        if hasattr(self, '_timer'):
+            started = self._timer
+        else:
+            started = time()
         ended = started + taken
 
         self.errorlist.append(
-            '<testcase classname=%(cls)s name=%(name)s time="%(taken).3f" started=%(started)s ended=%(ended)s>'
+            '<testcase classname=%(cls)s name=%(name)s time="%(taken).3f" started="%(started)s" ended="%(ended)s">'
             '<%(type)s type=%(errtype)s message=%(message)s><![CDATA[%(tb)s]]>'
             '</%(type)s>%(systemout)s%(systemerr)s</testcase>' %
             {'cls': self._quoteattr(id_split(id)[0]),
@@ -122,11 +126,14 @@ class XunitMP(Xunit):
         tb = format_exception(err, self.encoding)
         self.stats['failures'] += 1
         id = test.id()
-        started = self._timer()
+        if hasattr(self, '_timer'):
+            started = self._timer
+        else:
+            started = time()
         ended = started + taken
 
         self.errorlist.append(
-            '<testcase classname=%(cls)s name=%(name)s time="%(taken).3f" started=%(started)s ended=%(ended)s>'
+            '<testcase classname=%(cls)s name=%(name)s time="%(taken).3f" started="%(started)s" ended="%(ended)s">'
             '<failure type=%(errtype)s message=%(message)s><![CDATA[%(tb)s]]>'
             '</failure>%(systemout)s%(systemerr)s</testcase>' %
             {'cls': self._quoteattr(id_split(id)[0]),
@@ -147,11 +154,14 @@ class XunitMP(Xunit):
         taken = self._timeTaken()
         self.stats['passes'] += 1
         id = test.id()
-        started = self._timer()
+        if hasattr(self, '_timer'):
+            started = self._timer
+        else:
+            started = time()
         ended = started + taken
         self.errorlist.append(
             '<testcase classname=%(cls)s name=%(name)s '
-            'time="%(taken).3f" started=%(started)s ended=%(ended)s>%(systemout)s%(systemerr)s</testcase>' %
+            'time="%(taken).3f" started="%(started)s" ended="%(ended)s">%(systemout)s%(systemerr)s</testcase>' %
             {'cls': self._quoteattr(id_split(id)[0]),
              'name': self._quoteattr(id_split(id)[-1]),
              'taken': taken,
